@@ -15,31 +15,39 @@ import org.springframework.boot.web.server.WebServer;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 //@SpringBootApplication
 public class HellobootApplication {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
+        ServletWebServerFactory serverFactory = new TomcatServletWebServerFactory();
+        //익명클래스 작성
+        WebServer webServer = serverFactory.getWebServer(servletContext -> {
+            servletContext.addServlet("frontController", new HttpServlet() {
+                @Override
+                protected void service(HttpServletRequest req, HttpServletResponse resp)
+                    throws ServletException, IOException {
+                    //인증, 보안, 다국어처리, 공통기능
+                    if (req.getRequestURI().equals("/hello") && req.getMethod().equals(HttpMethod.GET.name())) {
+                        String name = req.getParameter("name");
 
-		ServletWebServerFactory serverFactory = new TomcatServletWebServerFactory();
-		//익명클래스 작성
-		WebServer webServer = serverFactory.getWebServer(servletContext -> {
-			servletContext.addServlet("hello", new HttpServlet() {
-				@Override
-				protected void service(HttpServletRequest req, HttpServletResponse resp)
-					throws ServletException, IOException {
-					String name = req.getParameter("name");
+                        resp.setStatus(HttpStatus.OK.value());
+                        resp.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
+                        resp.getWriter().println("Hello " + name);
+                    }
+                    else if (req.getRequestURI().equals("user")) {
 
-					resp.setStatus(HttpStatus.OK.value());
-					resp.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
-					resp.getWriter().println("Hello " + name);
-				}
-			}).addMapping("/hello");
-		});
-		webServer.start();
-	}
+                    } else {
+                        resp.setStatus(HttpStatus.NOT_FOUND.value());
+                    }
+                }
+            }).addMapping("/*");
+        });
+        webServer.start();
+    }
 
 }
