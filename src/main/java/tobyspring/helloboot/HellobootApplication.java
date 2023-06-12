@@ -1,6 +1,7 @@
 package tobyspring.helloboot;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -13,6 +14,9 @@ import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactor
 import org.springframework.boot.web.server.WebServer;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
 //@SpringBootApplication
 public class HellobootApplication {
@@ -27,9 +31,11 @@ public class HellobootApplication {
 				@Override
 				protected void service(HttpServletRequest req, HttpServletResponse resp)
 					throws ServletException, IOException {
-					resp.setStatus(200);
-					resp.setHeader("Content-Type", "text/plain");
-					resp.getWriter().println("Hello Servlet");
+					String name = req.getParameter("name");
+
+					resp.setStatus(HttpStatus.OK.value());
+					resp.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
+					resp.getWriter().println("Hello " + name);
 				}
 			}).addMapping("/hello");
 		});
