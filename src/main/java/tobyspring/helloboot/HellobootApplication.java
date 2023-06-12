@@ -1,23 +1,38 @@
 package tobyspring.helloboot;
 
+import java.io.IOException;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.catalina.startup.Tomcat;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.WebServer;
+import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 
 //@SpringBootApplication
 public class HellobootApplication {
 
 	public static void main(String[] args) {
-//		SpringApplication.run(HellobootApplication.class, args);
-//		System.out.println("Hello Containerless Standalone Application");//이것만 있으면 동작했을 때 이 글자가 띄워진다
 
-//		new Tomcat().start();//이동작만 한다고 톰캣이 띄어지는 것은 아니다
 
 		ServletWebServerFactory serverFactory = new TomcatServletWebServerFactory();
-		WebServer webServer = serverFactory.getWebServer();
+		//익명클래스 작성
+		WebServer webServer = serverFactory.getWebServer(servletContext -> {
+			servletContext.addServlet("hello", new HttpServlet() {
+				@Override
+				protected void service(HttpServletRequest req, HttpServletResponse resp)
+					throws ServletException, IOException {
+					resp.setStatus(200);
+					resp.setHeader("Content-Type", "text/plain");
+					resp.getWriter().println("Hello Servlet");
+				}
+			}).addMapping("/hello");
+		});
 		webServer.start();
 	}
 
